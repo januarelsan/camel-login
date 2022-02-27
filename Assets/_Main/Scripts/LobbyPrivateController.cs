@@ -14,7 +14,7 @@ public class LobbyPrivateController : MonoBehaviour
 
     public void CallLobbyJoinAPI()
     {
-        List<string> parameters = new List<string>() { codeInputField.text };
+        List<string> parameters = new List<string>() { codeInputField.text, PlayerPrefController.Instance.GetIdentityNumber() };
         APIController.Instance.Get("lobby/join", CallLobbyJoinAPIResponse, parameters);
     }
 
@@ -41,6 +41,7 @@ public class LobbyPrivateController : MonoBehaviour
         else
         {
             Debug.Log("error: " + http.Error());
+            MessageController.Instance.ShowMessage("Something Error, Please Try Again!");
         }
     }
 

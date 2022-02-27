@@ -45,6 +45,7 @@ public class LobbyPublicController : MonoBehaviour
 
 		} else {
 			Debug.Log("error: " + http.Error());
+            MessageController.Instance.ShowMessage("Something Error, Please Try Again!");
 		}
     }
 

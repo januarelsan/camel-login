@@ -5,7 +5,8 @@ using SimpleHTTP;
 
 public class APIController : Singleton<APIController>
 {
-    private const string baseURL = "https://januarelsan.com/api/";
+    // private const string baseURL = "https://januarelsan.com/api/";
+    private const string baseURL = "http://127.0.0.1:8000/api/";
     
     private string token = "soH3NGTFFg66Rs4HZe42Sov2iuvKDKCLJWAAujnZ";
 
@@ -33,7 +34,9 @@ public class APIController : Singleton<APIController>
         .AddHeader("Authorization", "Bearer " + token);
 
 		Client http = new Client ();
-		yield return http.Send (request);
+		LoadingController.Instance.SetActive(true);
+        yield return http.Send(request);
+        LoadingController.Instance.SetActive(false);
         callback(http);
 		// ProcessResult (http);
 	}
@@ -75,7 +78,9 @@ public class APIController : Singleton<APIController>
             .Post(RequestBody.From(formData));
 
         Client http = new Client();
+        LoadingController.Instance.SetActive(true);
         yield return http.Send(request);
+        LoadingController.Instance.SetActive(false);
         callback(http);
     }
 
@@ -109,6 +114,7 @@ public class APIController : Singleton<APIController>
         else
         {
             Debug.Log("error: " + http.Error());
+            MessageController.Instance.ShowMessage("Something Error, Please Try Again!");
         }
 
     }

@@ -11,7 +11,9 @@ public class LobbyItemGO : MonoBehaviour
     public void Setup(Lobby lobby){
         this.lobby = lobby;
         nameText.text = lobby.name + " - " + lobby.code;
-        joinedUserCountText.text = "Joined " + lobby.joined_users.Length + "/4";
+
+        if(lobby.joined_identities != null)
+            joinedUserCountText.text = "Joined " + lobby.joined_identities.Length + "/4";
     }
 
     public void OpenLobby(){

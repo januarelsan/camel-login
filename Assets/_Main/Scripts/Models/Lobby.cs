@@ -7,7 +7,7 @@ public class Lobby {
     public string name;
 	public string code;	    
 
-    public User[] joined_users;
+    public Identity[] joined_identities;
 
 }
 

@@ -52,6 +52,7 @@ public class LinkItemController : Singleton<LinkItemController>
         else
         {
             Debug.Log("error: " + http.Error());
+            MessageController.Instance.ShowMessage("Something Error, Please Try Again!");
         }
     }
 }

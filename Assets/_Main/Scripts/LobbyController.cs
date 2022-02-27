@@ -31,7 +31,7 @@ public class LobbyController : Singleton<LobbyController>
     
     public void CallLobbyCreateAPI(){
         Dictionary<string, string> parameters = new Dictionary<string, string>();
-        parameters.Add("name", lobbyNameField.text);
+        parameters.Add("name", lobbyNameField.text);        
 
         string visibility = "0";
         if(publicToggle.isOn)
@@ -50,7 +50,19 @@ public class LobbyController : Singleton<LobbyController>
             if(resp.IsOK()){
 
                 Debug.Log(resp.ToString());
-                UpdateMyRoomList();
+                // UpdateMyRoomList();
+
+                string wrappedJSON = resp.WrapJSONArray("lobbies");
+                            
+
+                LobbyCollection lobbyCollection = JsonUtility.FromJson<LobbyCollection>(wrappedJSON);
+                            
+                foreach (Lobby lobby in lobbyCollection.lobbies)
+                {         
+                    Debug.Log(lobby.name);
+                    OpenLobbyHome(lobby);
+                }
+                
                 
             } else {
                 Debug.Log(resp.ToString());
@@ -58,6 +70,7 @@ public class LobbyController : Singleton<LobbyController>
 
 		} else {
 			Debug.Log("error: " + http.Error());
+            MessageController.Instance.ShowMessage("Something Error, Please Try Again!");
 		}
     }
 
@@ -88,6 +101,7 @@ public class LobbyController : Singleton<LobbyController>
 
 		} else {
 			Debug.Log("error: " + http.Error());
+            MessageController.Instance.ShowMessage("Something Error, Please Try Again!");
 		}
     }
 
@@ -112,7 +126,7 @@ public class LobbyController : Singleton<LobbyController>
     }
 
     public void CallLobbyJoinAPI(string code){
-        List<string> parameters = new List<string>(){code};
+        List<string> parameters = new List<string>(){code,PlayerPrefController.Instance.GetIdentityNumber()};
         APIController.Instance.Get("lobby/join", CallLobbyJoinAPIResponse, parameters);        
     }
 
@@ -133,6 +147,7 @@ public class LobbyController : Singleton<LobbyController>
 
 		} else {
 			Debug.Log("error: " + http.Error());
+            MessageController.Instance.ShowMessage("Something Error, Please Try Again!");
 		}
     }
 
@@ -157,6 +172,7 @@ public class LobbyController : Singleton<LobbyController>
 
 		} else {
 			Debug.Log("error: " + http.Error());
+            MessageController.Instance.ShowMessage("Something Error, Please Try Again!");
 		}
     }
 

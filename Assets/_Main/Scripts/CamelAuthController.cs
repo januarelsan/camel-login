@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using SimpleHTTP;
+using UnityEngine.SceneManagement;
 
 public class CamelAuthController : MonoBehaviour
 {
@@ -23,14 +24,24 @@ public class CamelAuthController : MonoBehaviour
     private InputField identityNoField;
 
     [SerializeField]
-    private InputField dayField,monthField,yearField;
+    private InputField dayField, monthField, yearField;
 
     [SerializeField]
     private InputField emailRegisterField;
     [SerializeField]
     private InputField passwordRegisterField;
 
-    
+
+    [SerializeField]
+    private InputField fullnameFieldVerify;
+
+    [SerializeField]
+    private InputField identityNoFieldVerify;
+
+    [SerializeField]
+    private InputField dayFieldVerify, monthFieldVerify, yearFieldVerify;
+
+
 
     void Start()
     {
@@ -45,7 +56,7 @@ public class CamelAuthController : MonoBehaviour
         {
             Debug.Log("All Fields Cannot be Empty!");
             return;
-        }        
+        }
 
         Dictionary<string, string> parameters = new Dictionary<string, string>();
 
@@ -80,28 +91,27 @@ public class CamelAuthController : MonoBehaviour
                     if (item.status == "success")
                     {
                         Debug.Log("Camel Register Success");
-                        LoginController.Instance.CallRegisterAPI(emailRegisterField.text,fullnameField.text,passwordRegisterField.text);
+                        LoginController.Instance.CallRegisterAPI(emailRegisterField.text, fullnameField.text, passwordRegisterField.text);
                     }
                     else
                     {
-                        
 
-                        string message = " - " + item.message + "\r\n\r\n";    
-                        
-                        if(item.error_details.fullname != null) 
-                            message += " - " + item.error_details.fullname[0] + "\r\n\r\n";                            
+                        string message = " - " + item.message + "\r\n\r\n";
 
-                        if(item.error_details.identity_no != null) 
-                            message += " - " + item.error_details.identity_no[0] + "\r\n\r\n";    
-                        
-                        if(item.error_details.birthday != null) 
-                            message += " - " + item.error_details.birthday[0] + "\r\n\r\n";    
-                        
-                        if(item.error_details.email != null) 
-                            message += " - " + item.error_details.email[0] + "\r\n\r\n";    
-                        
-                        if(item.error_details.password != null) 
-                            message += " - " + item.error_details.password[0] + "\r\n\r\n";     
+                        if (item.error_details.fullname != null)
+                            message += " - " + item.error_details.fullname[0] + "\r\n\r\n";
+
+                        if (item.error_details.identity_no != null)
+                            message += " - " + item.error_details.identity_no[0] + "\r\n\r\n";
+
+                        if (item.error_details.birthday != null)
+                            message += " - " + item.error_details.birthday[0] + "\r\n\r\n";
+
+                        if (item.error_details.email != null)
+                            message += " - " + item.error_details.email[0] + "\r\n\r\n";
+
+                        if (item.error_details.password != null)
+                            message += " - " + item.error_details.password[0] + "\r\n\r\n";
 
                         MessageController.Instance.ShowMessage(message);
                     }
@@ -112,13 +122,14 @@ public class CamelAuthController : MonoBehaviour
             else
             {
                 Debug.Log(resp.ToString());
-
+                MessageController.Instance.ShowMessage("Something Error, Please Try Again!");
             }
 
         }
         else
         {
             Debug.Log("error: " + http.Error());
+            MessageController.Instance.ShowMessage("Something Error, Please Try Again!");
         }
     }
 
@@ -141,7 +152,7 @@ public class CamelAuthController : MonoBehaviour
         {
             Debug.Log("Email & Password Field Cannot be Empty!");
             return;
-        }        
+        }
 
         Dictionary<string, string> parameters = new Dictionary<string, string>();
         parameters.Add("email", emailField.text);
@@ -173,7 +184,7 @@ public class CamelAuthController : MonoBehaviour
                     else
                     {
                         MessageController.Instance.ShowMessage(item.message);
-                        
+
                     }
 
                 }
@@ -182,13 +193,14 @@ public class CamelAuthController : MonoBehaviour
             else
             {
                 Debug.Log(resp.ToString());
-
+                MessageController.Instance.ShowMessage("Something Error, Please Try Again!");
             }
 
         }
         else
         {
             Debug.Log("error: " + http.Error());
+            MessageController.Instance.ShowMessage("Something Error, Please Try Again!");
         }
     }
 
@@ -196,8 +208,140 @@ public class CamelAuthController : MonoBehaviour
 
 
 
+    public void CallVerifyAPI()
+    {
+
+        if (fullnameFieldVerify.text == "" || identityNoFieldVerify.text == "" || dayFieldVerify.text == "" || monthFieldVerify.text == "" || yearFieldVerify.text == "")
+        {
+            Debug.Log("All Fields Cannot be Empty!");
+            return;
+        }
+
+        Dictionary<string, string> parameters = new Dictionary<string, string>();
+
+        string birtdayString = yearFieldVerify.text + "-" + monthFieldVerify.text + "-" + dayFieldVerify.text;
+
+        parameters.Add("fullname", fullnameFieldVerify.text);
+        parameters.Add("identity_no", identityNoFieldVerify.text);
+        parameters.Add("birthday", birtdayString);
+
+        PostWithFormData("verify-identity", CallVerifyAPIResponse, parameters);
+    }
+
+    void CallVerifyAPIResponse(Client http)
+    {
+        if (http.IsSuccessful())
+        {
+            Response resp = http.Response();
+
+            if (resp.IsOK())
+            {
+                Debug.Log(resp.ToString());
 
 
+                string wrappedJSON = resp.WrapJSONArray("registerResponses");
+
+                var collection = JsonUtility.FromJson<RegisterResponseCollection>(wrappedJSON);
+
+                foreach (var item in collection.registerResponses)
+                {
+                    if (item.status == "success")
+                    {
+                        Debug.Log("Camel Verify Success");
+                        CallIdentityCreateAPI(identityNoFieldVerify.text);
+                        
+                    }
+                    else
+                    {
+
+
+                        string message = " - " + item.message + "\r\n\r\n";
+
+                        if (item.error_details.fullname != null)
+                            message += " - " + item.error_details.fullname[0] + "\r\n\r\n";
+
+                        if (item.error_details.identity_no != null)
+                            message += " - " + item.error_details.identity_no[0] + "\r\n\r\n";
+
+                        if (item.error_details.birthday != null)
+                            message += " - " + item.error_details.birthday[0] + "\r\n\r\n";
+
+                        if (item.error_details.email != null)
+                            message += " - " + item.error_details.email[0] + "\r\n\r\n";
+
+                        if (item.error_details.password != null)
+                            message += " - " + item.error_details.password[0] + "\r\n\r\n";
+
+                        MessageController.Instance.ShowMessage(message);
+                    }
+
+                }
+
+            }
+            else
+            {
+                Debug.Log(resp.ToString());
+                MessageController.Instance.ShowMessage("Something Error, Please Try Again!");
+            }
+
+        }
+        else
+        {
+            Debug.Log("error: " + http.Error());
+            MessageController.Instance.ShowMessage("Something Error, Please Try Again!");
+
+        }
+    }
+
+
+
+
+    public void CallIdentityCreateAPI(string identityNumber)
+    {
+
+        Dictionary<string, string> parameters = new Dictionary<string, string>();
+
+        parameters.Add("identity_number", identityNumber);        
+        APIController.Instance.PostWithFormData("identity/create", CallIndentityCreateAPIResponse, parameters);
+    }
+
+    void CallIndentityCreateAPIResponse(Client http)
+    {
+        if (http.IsSuccessful())
+        {
+            Response resp = http.Response();
+
+            if (resp.IsOK())
+            {
+                Debug.Log(resp.ToString());
+
+
+                string wrappedJSON = resp.WrapJSONArray("identities");
+
+                var collection = JsonUtility.FromJson<IdentityCollection>(wrappedJSON);
+
+                foreach (var item in collection.identities)
+                {
+                    Debug.Log(item.number);
+                    PlayerPrefController.Instance.SetIdentityNumber(item.number);
+                    LoginController.Instance.ToLobbyPage();
+                }
+
+            }
+            else
+            {
+                Debug.Log(resp.ToString());
+                MessageController.Instance.ShowMessage("Something Error, Please Try Again!");
+            }
+
+        }
+        else
+        {
+            Debug.Log("error: " + http.Error());
+            MessageController.Instance.ShowMessage("Something Error, Please Try Again!");
+
+        }
+    }
 
 
 
@@ -226,7 +370,7 @@ public class CamelAuthController : MonoBehaviour
         if (http.IsSuccessful())
         {
             Response resp = http.Response();
-            
+
 
             if (resp.IsOK())
             {
@@ -239,7 +383,7 @@ public class CamelAuthController : MonoBehaviour
                 {
                     if (item.status == "success")
                     {
-                        access_token = item;                        
+                        access_token = item;
                     }
                     else
                     {
@@ -252,13 +396,15 @@ public class CamelAuthController : MonoBehaviour
             else
             {
                 Debug.Log(resp.ToString());
-
+                MessageController.Instance.ShowMessage("Something Error, Please Try Again!");
+                SceneManager.LoadScene(SceneManager.GetActiveScene().name);
             }
 
         }
         else
         {
             Debug.Log("error: " + http.Error());
+            MessageController.Instance.ShowMessage("Something Error, Please Try Again!");
         }
     }
 
@@ -289,12 +435,14 @@ public class CamelAuthController : MonoBehaviour
             .AddHeader("Access-Control-Allow-Headers", "Accept, X-Access-Token, X-Application-Name, X-Request-Sent-Time")
             .AddHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
             .AddHeader("Access-Control-Allow-Origin", "https://hbgww.zappar.io")
-            
-            
+
+
             .Post(RequestBody.From(formData));
 
         Client http = new Client();
+        LoadingController.Instance.SetActive(true);
         yield return http.Send(request);
+        LoadingController.Instance.SetActive(false);
         callback(http);
     }
 }

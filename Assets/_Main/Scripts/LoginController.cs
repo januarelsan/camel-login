@@ -18,6 +18,8 @@ public class LoginController : Singleton<LoginController>
     [SerializeField]
     private GameObject lobbyPage;
 
+    
+
     public void CallRegisterAPI(string email, string name, string password){
         Dictionary<string, string> parameters = new Dictionary<string, string>();
         parameters.Add("name", name);
@@ -43,6 +45,7 @@ public class LoginController : Singleton<LoginController>
 
 		} else {
 			Debug.Log("error: " + http.Error());
+            MessageController.Instance.ShowMessage("Something Error, Please Try Again!");
 		}
     }
         
@@ -71,10 +74,11 @@ public class LoginController : Singleton<LoginController>
 
 		} else {
 			Debug.Log("error: " + http.Error());
+            MessageController.Instance.ShowMessage("Something Error, Please Try Again!");
 		}
     }
 
-    private void ToLobbyPage(){
+    public void ToLobbyPage(){
         loginPage.SetActive(false);
         lobbyPage.SetActive(true);
     }

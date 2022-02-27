@@ -25,8 +25,8 @@ public class LobbyHomeController : MonoBehaviour
 
         for (int i = 0; i < userNameTexts.Length; i++)
         {
-            if(i < lobby.joined_users.Length){
-                userNameTexts[i].text = lobby.joined_users[i].name;
+            if(i < lobby.joined_identities.Length){
+                userNameTexts[i].text = lobby.joined_identities[i].number;
             } else {
                 userNameTexts[i].text = "Empty";
             }
@@ -68,11 +68,12 @@ public class LobbyHomeController : MonoBehaviour
 
 		} else {
 			Debug.Log("error: " + http.Error());
+            MessageController.Instance.ShowMessage("Something Error, Please Try Again!");
 		}
     }
 
     public void CallLobbyLeaveAPI(){
-        List<string> parameters = new List<string>(){lobby.code};
+        List<string> parameters = new List<string>(){lobby.code,PlayerPrefController.Instance.GetIdentityNumber()};
         APIController.Instance.Get("lobby/leave", CallLobbyLeaveAPIResponse, parameters);        
     }
 
@@ -92,6 +93,7 @@ public class LobbyHomeController : MonoBehaviour
 
 		} else {
 			Debug.Log("error: " + http.Error());
+            MessageController.Instance.ShowMessage("Something Error, Please Try Again!");
 		}
     }
 }
